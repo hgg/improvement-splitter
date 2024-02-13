@@ -1,9 +1,23 @@
 # Automatic Improvement Splitting
 
-This script contains a few bash functions to help automate the process of splitting improvements to a different branch.
+This script contains a few bash functions to help automate the process of splitting improvements to a different branch. They
 
 ## Setup
+We've added an script for setting up the functions, but they can easily be added manually to your existing alias file or even directly on your shell profile (please don't :sweat_smile:)
 
+1. Clone the repository
+2. Run the `setup.sh` script to set up new functions/alias
+```bash
+$ chmod +x setup.sh
+$ ./setup.sh
+```
+3. Restart your terminal
+
+The setup script currently supports:
+* Zsh 
+  * Uses the Oh-my-zsh custom folder when applicable
+* Bash
+  
 ## Usage
 1. As you find improvements, tag them with the `gcmi` command. This is still a normal commit, so you can add a message.
 ```sh 
