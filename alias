@@ -1,22 +1,40 @@
+# Finds the default branch of the current repository
+function default_branch() {
+    git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'
+}
 
-function gcmi() {
+# Git Commit Message, Unrelated Improvement version
+# Commits with the specified identifier
+function gcmui() {
     git commit -m "[UNRELATED-IMPROVEMENT] $1"
 }
 
-function gsi() {
-
+# Git Checkout Branch, Unrelated Improvement version
+# This function creates a new branch for unrelated improvements, 
+# cherry-picks commits with the "[UNRELATED-IMPROVEMENT]" identifier from the current branch, 
+# and removes that identifier when committing in the new branch.
+# It then pushes the new branch to the remote repository.
+# After that, it switches back to the original branch and removes the cherry-picked commits.
+# Finally, it pushes the updated original branch to the remote repository.
+# If no parameter is provided, the new branch will be named "unrelated-improvements".
+function gcbui() {
+    DEFAULT_BRANCH=$(default_branch)
     CURRENT_BRANCH=$(gb --show-current)
 
     # Set default branch name if no parameter is provided
     IMPROVEMENTS_BRANCH_NAME=${1:-unrelated-improvements}
 
-    # Create a new branch for unrelated improvements
-    git checkout -b $IMPROVEMENTS_BRANCH_NAME
+    # Find all commits with the specified identifier
+    COMMIT_HASHES=$(git log --grep="\[UNRELATED-IMPROVEMENT\]" --reverse --format=%H)
 
-    # Cherry-pick commits with the specified identifier, removing that identified when committing
-    git log --grep="\[UNRELATED-IMPROVEMENT\]" --reverse --format=%H | xargs -I {} \
-        git cherry-pick --no-commit {} && \
-        git commit --amend -m "$(git log --format=%B -n 1 {} | sed 's/\[UNRELATED-IMPROVEMENT\] //')"
+    # Create a new branch for unrelated improvements, based off the default branch
+    git checkout -b $IMPROVEMENTS_BRANCH_NAME $DEFAULT_BRANCH
+
+    # Cherry-pick commits with the specified identifier
+    echo "$COMMIT_HASHES" | xargs -I {} git cherry-pick --no-commit {}
+
+    # Commit in the new branch without the identifier
+    git commit --amend -m "$(git log --format=%B -n 1 {} | sed 's/\[UNRELATED-IMPROVEMENT\] //')"
 
     git push origin $IMPROVEMENTS_BRANCH_NAME
 
