@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SOURCE_DIR="$(dirname "$BASH_SOURCE")" # Get the directory of the current script
-SOURCE_FILE="./alias.sh"
+SOURCE_FILE="./alias"
 
 
 # Check if the source file exists

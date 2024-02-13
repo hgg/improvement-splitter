@@ -1,12 +1,10 @@
-# Commit your improvements with a specific identifier in the message
+
 function gcmi() {
     git commit -m "[UNRELATED-IMPROVEMENT] $1"
 }
 
-# Creates a new branch, cherry-picks all unrelated improvement commits to that branch, moves back to 
-# the feature branch and removes any improvements commits from it.
 function gsi() {
-    # Get current git branch
+
     CURRENT_BRANCH=$(gb --show-current)
 
     # Set default branch name if no parameter is provided
