@@ -3,7 +3,7 @@
 This script contains a few bash functions to help automate the process of splitting improvements to a different branch. They
 
 ## Setup
-We've added an script for setting up the functions, but they can easily be added manually to your existing alias file or even directly on your shell profile (please don't :sweat_smile:)
+A script for setting up the functions is included, but they can easily be added manually to your existing alias file or even directly on your shell profile (please don't :sweat_smile:)
 
 1. Clone the repository
 2. Run the `setup.sh` script to set up new functions/alias
@@ -19,14 +19,16 @@ The setup script currently supports:
 * Bash
   
 ## Usage
-1. As you find improvements, tag them with the `gcmi` command. This is still a normal commit, so you can add a message.
+1. As you find improvements, tag them with the `gcmui` command. This is still a normal commit, so you can add a message.
 ```sh 
 $ git add lib/file-with-unrelated-changes.ex
-$ gcmi "Fix ordering of statement"
+$ gcmui "Fix ordering of statement"
 ```
-2. When you are ready to split the improvements use the `gsi` command. You should specify the name of the improvements branch.
+2. When you are ready to split the improvements use the `gcbui` command. You should specify the name of the improvements branch.
 ```sh
-$ gsi hg/random-improvements
+$ gcbui hg/small-improvements
 ```
 
 All of the improvements should have been moved the selected branch.
+
+The commands `gcmui` and `gcbui` should be somewhat familiar as they are based on the common aliases for `git commit -m` `gcm` and `git checkout -b` `gcb`, with the  added `ui` suffix for `unrelated improvements`.
