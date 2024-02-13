@@ -1,0 +1,18 @@
+# Automatic Improvement Splitting
+
+This script contains a few bash functions to help automate the process of splitting improvements to a different branch.
+
+## Setup
+
+## Usage
+1. As you find improvements, tag them with the `gcmi` command. This is still a normal commit, so you can add a message.
+```sh 
+$ git add lib/file-with-unrelated-changes.ex
+$ gcmi "Fix ordering of statement"
+```
+2. When you are ready to split the improvements use the `gsi` command. You should specify the name of the improvements branch.
+```sh
+$ gsi hg/random-improvements
+```
+
+All of the improvements should have been moved the selected branch.
