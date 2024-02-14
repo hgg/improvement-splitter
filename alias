@@ -10,40 +10,57 @@ function gcmui() {
 }
 
 # Git Checkout Branch, Unrelated Improvement version
-# This function creates a new branch for unrelated improvements, 
-# cherry-picks commits with the "[UNRELATED-IMPROVEMENT]" identifier from the current branch, 
-# and removes that identifier when committing in the new branch.
-# It then pushes the new branch to the remote repository.
-# After that, it switches back to the original branch and removes the cherry-picked commits.
-# Finally, it pushes the updated original branch to the remote repository.
-# If no parameter is provided, the new branch will be named "unrelated-improvements".
+# Creates a new branch for unrelated improvements, based off the default branch
+# Cherry-picks commits with the specified identifier and commits in the new branch without the identifier
+# Makes the original branch keep only commits that don't have the specified identifier
 function gcbui() {
     DEFAULT_BRANCH=$(default_branch)
-    CURRENT_BRANCH=$(gb --show-current)
+    ORIGINAL_BRANCH=$(gb --show-current)
 
     # Set default branch name if no parameter is provided
     IMPROVEMENTS_BRANCH_NAME=${1:-unrelated-improvements}
 
+    # All commits from the original branch that aren't on the default branch
+    COMMIT_HASHES=$(git log $DEFAULT_BRANCH..$ORIGINAL_BRANCH --reverse --format=%H)
+
     # Find all commits with the specified identifier
-    COMMIT_HASHES=$(git log --grep="\[UNRELATED-IMPROVEMENT\]" --reverse --format=%H)
+    UNRELATED_IMPROVEMENTS_COMMIT_HASHES=$(git log $DEFAULT_BRANCH..$ORIGINAL_BRANCH --grep="\[UNRELATED-IMPROVEMENT\]" --reverse --format=%H)
 
     # Create a new branch for unrelated improvements, based off the default branch
     git checkout -b $IMPROVEMENTS_BRANCH_NAME $DEFAULT_BRANCH
 
-    # Cherry-pick commits with the specified identifier
-    echo "$COMMIT_HASHES" | xargs -I {} git cherry-pick --no-commit {}
+    # Cherry-pick commits with the specified identifier and commit in the new branch without the identifier
+    echo "$UNRELATED_IMPROVEMENTS_COMMIT_HASHES" | while read commit; do
+        git cherry-pick --no-commit $commit && \
+        git commit -m "$(git log --format=%B -n 1 $commit | sed 's/\[UNRELATED-IMPROVEMENT\] //')"
+    done
 
-    # Commit in the new branch without the identifier
-    git commit --amend -m "$(git log --format=%B -n 1 {} | sed 's/\[UNRELATED-IMPROVEMENT\] //')"
+    # Push the new branch to the remote repository if --local-only is not provided
+    if [[ "$@" != *"--local-only"* ]]; then
+        git push origin $IMPROVEMENTS_BRANCH_NAME
+    fi
 
-    git push origin $IMPROVEMENTS_BRANCH_NAME
+    # Create a temporary branch to cherry the relevant commits from the original branch
+    git checkout -b unrelated-improvements-temp-branch $DEFAULT_BRANCH
+
+    # Cherry pick commits from the ORIGINAL_BRANCH that aren't in the $UNRELATED_IMPROVEMENTS_COMMIT_HASHES list
+    echo "$COMMIT_HASHES" | while read commit; do
+        if [[ ! " ${UNRELATED_IMPROVEMENTS_COMMIT_HASHES} " =~ " ${commit} " ]]; then
+            git cherry-pick --quiet $commit
+        fi
+    done
+
+    # Make the ORIGINAL_BRANCH have the same commits as the temporary branch
+    git branch -f $ORIGINAL_BRANCH
 
     # Switch back to the original branch
-    git checkout $CURRENT_BRANCH
+    git checkout $ORIGINAL_BRANCH
 
-    # Remove commits with the specified identifier
-    git log --grep="\[UNRELATED-IMPROVEMENT\]" --reverse --format=%H | xargs -I {} git reset --hard {}
+    # Remove the temporary branch
+    git branch -D unrelated-improvements-temp-branch
 
-    # Push the updated branch
-    git push origin $CURRENT_BRANCH
+    # Push the updated branch if --local-only is not provided
+    if [[ "$@" != *"--local-only"* ]]; then
+        git push -f origin $ORIGINAL_BRANCH
+    fi
 }
