@@ -19,6 +19,7 @@ The setup script currently supports:
 * Bash
   
 ## Usage
+
 1. As you find improvements, tag them with the `gcmui` command. This is still a normal commit, so you can add a message.
 ```sh 
 $ git add lib/file-with-unrelated-changes.ex
@@ -27,6 +28,18 @@ $ gcmui "Fix ordering of statement"
 2. When you are ready to split the improvements use the `gcbui` command. You should specify the name of the improvements branch.
 ```sh
 $ gcbui hg/small-improvements
+```
+
+> [!CAUTION]
+> This command will force push your branch to remove the improvements from it.
+  
+If you don't want to push the changes, for instance if you don't have a remote or if you're just trying the commands out and you don't want to lose anything you
+can:
+1. Ensure you've pushed the latest changes to your remote
+2. Use the `--local-only` flag to stop `gcbui` from pushing the changes
+   
+```bash
+$ gcbui hg/small-improvements --local-only
 ```
 
 All of the improvements should have been moved the selected branch.
