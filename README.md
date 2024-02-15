@@ -1,6 +1,6 @@
 # Automatic Improvement Splitting
 
-This script contains a few bash functions to help automate the process of splitting improvements to a different branch. They
+This script contains a few bash functions to help automate the process of splitting improvements to a different branch.
 
 ## Setup
 A script for setting up the functions is included, but they can easily be added manually to your existing alias file or even directly on your shell profile (please don't :sweat_smile:)
